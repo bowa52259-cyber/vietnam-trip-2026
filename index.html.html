@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北越 8 日深度遊 (V5 全景點版)</title>
+    <style>
+        :root {
+            --primary: #00695c;
+            --secondary: #e0f2f1;
+            --text: #333;
+            --bg: #f3f4f6;
+            --card-radius: 12px;
+        }
+
+        body {
+            font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+
+        /* --- Header --- */
+        header {
+            background: linear-gradient(135deg, var(--primary), #004d40);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        header h2 { margin: 0; font-size: 1.5rem; }
+        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem; }
+
+        /* --- Tabs --- */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            background: white;
+            padding: 10px;
+            position: sticky;
+            top: 76px;
+            z-index: 900;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            max-width: 120px;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #666;
+            padding: 10px 5px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* --- Split Card Design --- */
+        .split-card {
+            display: flex;
+            background: white;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #ddd;
+            min-height: 200px; /* Slightly taller for better reading */
+        }
+
+        .card-left {
+            flex: 6; /* 60% text */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .card-right {
+            flex: 4; /* 40% image */
+            position: relative;
+            background-color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        /* Text Styles */
+        .time-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            align-self: flex-start;
+        }
+        
+        .item-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #222;
+        }
+        
+        .item-desc {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .tags { display: flex; flex-wrap: wrap; gap: 5px; }
+        .tag {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .tag.price { background: #ffebee; color: #d32f2f; font-weight: bold; }
+
+        /* --- Images & Maps --- */
+        .css-map-bg {
+            width: 100%;
+            height: 100%;
+            background-color: #e8eaed; 
+            background-image: 
+                linear-gradient(#fff 2px, transparent 2px),
+                linear-gradient(90deg, #fff 2px, transparent 2px);
+            background-size: 30px 30px;
+            position: relative;
+            cursor: pointer;
+        }
+        .css-map-bg:hover { opacity: 0.9; }
+        
+        .map-overlay-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: #1a73e8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-decoration: none;
+            z-index: 10;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .real-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .split-card:hover .real-img { transform: scale(1.05); }
+
+        /* --- Date Scroller --- */
+        .date-scroller {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 5px 0 15px 0;
+            margin-bottom: 5px;
+        }
+        .date-btn {
+            display: inline-block;
+            padding: 8px 18px;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #555;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .date-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,105,92,0.3);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .split-card { flex-direction: column; }
+            .card-left { border-right: none; border-bottom: 1px solid #eee; }
+            .card-right { height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>北越 8 日深度遊</h2>
+    <p>2026/01/28 - 2026/02/04</p>
+</header>
+
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('itinerary')">每日行程</button>
+    <button class="tab-btn" onclick="switchTab('attractions')">景點全覽</button>
+    <button class="tab-btn" onclick="switchTab('tips')">貼心提醒</button>
+</div>
+
+<div class="container">
+
+    <div id="tab-itinerary" class="tab-content active">
+        <div class="date-scroller" id="dayScroller"></div>
+        <div id="timelineContainer"></div>
+    </div>
+
+    <div id="tab-attractions" class="tab-content">
+        </div>
+
+    <div id="tab-tips" class="tab-content">
+        <div class="split-card" style="flex-direction: column;">
+            <div class="card-left">
+                <div class="item-title" style="color:var(--primary);">🧥 天氣與穿著</div>
+                <div class="item-desc">
+                    <strong>河內/下龍灣 (15-20°C)</strong>：早晚偏涼，建議穿薄長袖與防風外套。<br><br>
+                    <strong>沙壩 (5-10°C)</strong>：<span style="color:red; font-weight:bold;">高山極冷！</span>番西邦峰頂風大，體感溫度可能接近 0 度。務必攜帶羽絨外套、毛帽、手套。
+                </div>
+            </div>
+        </div>
+        <div class="split-card" style="flex-direction: column;">
+            <div class="card-left">
+                <div class="item-title" style="color:var(--primary);">⚠️ 旅遊注意事項</div>
+                <div class="item-desc">
+                    <ul>
+                        <li><strong>防騙</strong>：河內古街若有人主動要幫你擦鞋，請堅定拒絕 (Say No)。</li>
+                        <li><strong>交通</strong>：請下載 <strong>Grab App</strong> 叫車，避免路邊攔車被喊價。</li>
+                        <li><strong>小費</strong>：按摩通常需給小費 (約 5萬-10萬 VND)。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Data: Itinerary ---
+    const itinerary = [
+        {
+            date: "1/28 (三)",
+            events: [
+                { time: "08:40", title: "抵達河內", desc: "越航高雄出發 → 10:25 抵達。使用 Grab 叫車至飯店。", tags: ["機票"], map: "Noi Bai International Airport" },
+                { time: "午餐", title: "PHO 10", desc: "河內最知名的河粉店之一。備案：Banh Mi 25。", tags: ["美食"], map: "Pho 10 Ly Quoc Su" },
+                { time: "Check-in", title: "翡翠水濱水療飯店", desc: "Hanoi Emerald Waters Hotel & Spa", tags: ["$4493"], map: "Hanoi Emerald Waters Hotel & Spa" },
+                { time: "18:00", title: "Pizza 4P's", desc: "Tràng Tiền 分店 (已訂位)。", tags: ["晚餐", "已訂位"], map: "Pizza 4P's Tràng Tiền" }
+            ]
+        },
+        {
+            date: "1/29 (四)",
+            events: [
+                { time: "全日", title: "河內市區觀光", desc: "還劍湖 > 36 古街 > 水上木偶劇 > 火車咖啡街。", tags: ["市區"], map: "Hanoi Old Quarter" },
+                { time: "22:00", title: "臥鋪火車 VICSAPA", desc: "前往老街 (Lao Cai)，體驗夜臥火車。", tags: ["$6613"], map: "Hanoi Railway Station" }
+            ]
+        },
+        {
+            date: "1/30 (五)",
+            events: [
+                { time: "早晨", title: "接駁至沙壩", desc: "抵達老街車站，轉乘接駁車至 KK SAPA Hotel。", tags: ["接駁"], map: "Lao Cai Station" },
+                { time: "上午", title: "番西邦峰", desc: "芒花小火車 + 纜車攻頂。天氣好可見雲海。", tags: ["KLOOK"], map: "Sun Plaza Sapa" },
+                { time: "住宿", title: "KK SAPA HOTEL", desc: "易遊網訂房，位於沙壩市區。", tags: [], map: "KK Sapa Hotel" }
+            ]
+        },
+        {
+            date: "1/31 (六)",
+            events: [
+                { time: "白天", title: "貓貓村 / 玻璃橋", desc: "參觀黑苗族部落與天空步道。", tags: ["門票"], map: "Cat Cat Village" },
+                { time: "21:00", title: "臥鋪巴士", desc: "前往下龍灣。今晚睡在巴士上。", tags: ["$3061"], map: "Sapa Bus Station" }
+            ]
+        },
+        {
+            date: "2/1 (日)",
+            events: [
+                { time: "06:00", title: "抵達下龍灣", desc: "抵達碼頭，準備登船。", tags: [], map: "Tuan Chau Harbor" },
+                { time: "全日", title: "下龍灣郵輪", desc: "先鋒號 2。世界遺產巡航，夜宿船上。", tags: ["$25235"], map: "Halong Bay" }
+            ]
+        },
+        {
+            date: "2/2 (一)",
+            events: [
+                { time: "上午", title: "下龍灣活動", desc: "探訪驚訝洞或 Ti Top 島。", tags: [], map: "Sung Sot Cave" },
+                { time: "下午", title: "返回河內", desc: "搭乘接駁車返回市區。", tags: [], map: "Hanoi" },
+                { time: "住宿", title: "致敬高級水療酒店", desc: "Salute Premium Hotel & Spa", tags: [], map: "Salute Premium Hotel & Spa" }
+            ]
+        },
+        {
+            date: "2/3 (二)",
+            events: [
+                { time: "全日", title: "陸龍灣一日遊", desc: "前往長安 (Trang An)，搭乘手搖船。", tags: [], map: "Trang An Landscape Complex" }
+            ]
+        },
+        {
+            date: "2/4 (三)",
+            events: [
+                { time: "上午", title: "同春市場", desc: "最後採買伴手禮。", tags: [], map: "Dong Xuan Market" },
+                { time: "14:00", title: "前往機場", desc: "18:25 飛機返台。", tags: ["返程"], map: "Noi Bai International Airport" }
+            ]
+        }
+    ];
+
+    // --- Data: 11 Full Attractions from Itinerary ---
+    // Images sourced from Wikimedia Commons Special:FilePath for stability
+    const attractions = [
+        { 
+            title: "番西邦峰 (Fansipan)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Cable_car_station_going_Fansipan.jpg?width=640",
+            desc: "【沙壩】印度支那屋脊，海拔 3,143 公尺。搭乘世界最長的三索纜車，穿越厚厚的雲層直達山頂。山頂有一座巨大的金屬阿彌陀佛像，天氣晴朗時雲海翻騰，景色極為震撼。" 
+        },
+        { 
+            title: "龍雲玻璃橋 (Rong May Glass Bridge)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Sapa-Vietnam.jpg?width=640",
+            desc: "【沙壩】位於宏偉的烏龜湖山口 (O Quy Ho Pass)。這座透明玻璃橋從懸崖邊延伸而出，懸空於 2,200 公尺的高空。走在上面如漫步雲端，腳下就是萬丈深淵，是挑戰膽量的最佳景點。" 
+        },
+        { 
+            title: "沙壩 貓貓村 (Cat Cat Village)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Tien_Sa_Waterfall.JPG?width=640",
+            desc: "【沙壩】距離市區最近的黑苗族部落。沿著蜿蜒的石階下行，沿途有傳統木造房屋、販賣手工藝品的小店。村底有著名的仙莎瀑布與巨大的水車，還能租借傳統服飾拍照。" 
+        },
+        { 
+            title: "沙壩 石教堂 (Stone Church)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Sapa_Church.jpg?width=640",
+            desc: "【沙壩】建於 1895 年的法式建築，是沙壩最顯著的地標。位於市中心廣場旁，教堂前的廣場是當地少數民族聚會交易的地方，夜晚打燈後別有一番風味。" 
+        },
+        { 
+            title: "下龍灣 (Ha Long Bay)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Ha_Long_Bay_in_2019.jpg?width=640",
+            desc: "【下龍灣】聯合國世界自然遺產。海面上矗立著近 2,000 座形態各異的石灰岩島嶼。搭乘郵輪在平靜的海面上航行，彷彿進入了一幅巨大的水墨畫卷中。" 
+        },
+        { 
+            title: "陸龍灣 長安 (Trang An)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Trang_An_Scenic_Landscape_Complex,_northern_Vietnam_(253)_(38490028882).jpg?width=640",
+            desc: "【寧平】被稱為「陸地上的下龍灣」。搭乘由當地婦女划行的手搖船，穿梭在清澈的河流與低矮的鐘乳石洞穴之間，這裡也是電影《金剛：骷髏島》的拍攝地，環境清幽寧靜。" 
+        },
+        { 
+            title: "還劍湖 (Hoan Kiem Lake)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Hoan_Kiem_Lake.JPG?width=640",
+            desc: "【河內】河內的心臟。湖水翠綠，湖中心有龜塔 (Turtle Tower)，湖畔有紅色的棲旭橋連接玉山祠。傳說中黎利王在此將神劍歸還神龜，因此得名。早晨和傍晚有許多當地人在此運動。" 
+        },
+        { 
+            title: "河內 36 古街", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Old_Quarter_Street_Scene_-_Hanoi_-_Vietnam_(48256301206).jpg?width=640",
+            desc: "【河內】擁有千年歷史的商業區。每條街道以過去販賣的商品命名（如銀街、鞋街、糖街）。這裡交通混亂卻充滿活力，是品嚐街頭美食（如蛋咖啡、法國麵包）的最佳地點。" 
+        },
+        { 
+            title: "火車咖啡街 (Hanoi Train Street)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Train_street_in_Hanoi.jpg?width=640",
+            desc: "【河內】一條狹窄的民宅街道，鐵軌就鋪設在路中央。當火車經過時，兩旁的咖啡廳顧客需要收起腳步貼牆站立，火車與人的距離僅有幾十公分，極具視覺衝擊力。" 
+        },
+        { 
+            title: "昇龍水上木偶劇 (Water Puppet)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Thang_Long_Water_Puppet_Theatre2.JPG?width=640",
+            desc: "【河內】越南國寶級的傳統藝術，起源於 11 世紀的稻田農耕生活。表演者在竹簾後方，利用長竹竿操控木偶在水面上演出神話傳說與農村故事，配以傳統樂器伴奏。" 
+        },
+        { 
+            title: "同春市場 (Dong Xuan Market)", 
+            imgUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/Cho_Dong_Xuan_Ha_Noi.jpg?width=640",
+            desc: "【河內】河內最大的室內批發市場，建於法國殖民時期。市場內販賣各種服飾、布料、乾貨與紀念品。周邊的巷弄更是著名的「美食巷」，可以吃到道地的越南小吃。" 
+        }
+    ];
+
+    // --- Logic ---
+    let currentIndex = 0;
+
+    function renderItinerary() {
+        const scroller = document.getElementById('dayScroller');
+        scroller.innerHTML = itinerary.map((day, idx) => 
+            `<button class="date-btn ${idx === currentIndex ? 'active' : ''}" onclick="setDay(${idx})">${day.date}</button>`
+        ).join('');
+
+        const container = document.getElementById('timelineContainer');
+        const day = itinerary[currentIndex];
+        
+        container.innerHTML = day.events.map(ev => {
+            const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.map)}`;
+            return `
+            <div class="split-card">
+                <div class="card-left">
+                    <span class="time-badge">${ev.time}</span>
+                    <div class="item-title">${ev.title}</div>
+                    <div class="item-desc">${ev.desc}</div>
+                    <div class="tags">${ev.tags.map(t => `<span class="tag ${t.includes('$')?'price':''}">${t}</span>`).join('')}</div>
+                </div>
+                <div class="card-right">
+                    <div class="css-map-bg" onclick="window.open('${mapLink}', '_blank')"></div>
+                    <a href="${mapLink}" target="_blank" class="map-overlay-btn">📍 開啟導航</a>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderAttractions() {
+        const container = document.getElementById('tab-attractions');
+        container.innerHTML = attractions.map(spot => `
+            <div class="split-card">
+                <div class="card-left">
+                    <div class="item-title">${spot.title}</div>
+                    <div class="item-desc">${spot.desc}</div>
+                </div>
+                <div class="card-right">
+                    <img src="${spot.imgUrl}" class="real-img" alt="${spot.title}" loading="lazy"
+                         onerror="this.style.display='none'; this.parentNode.style.backgroundColor='#eee';">
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function setDay(index) {
+        currentIndex = index;
+        renderItinerary();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+        
+        const buttons = document.querySelectorAll('.tab-btn');
+        if(tabName === 'itinerary') buttons[0].classList.add('active');
+        if(tabName === 'attractions') buttons[1].classList.add('active');
+        if(tabName === 'tips') buttons[2].classList.add('active');
+    }
+
+    renderItinerary();
+    renderAttractions();
+</script>
+
+</body>
+</html>
